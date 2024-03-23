@@ -14,6 +14,11 @@ createWeb3Modal({
   wagmiConfig,
   projectId,
   themeMode: 'dark',
+  enableAnalytics: true, // Optional - defaults to your Cloud configuration
+  enableOnramp: true, // Optional - false as default
+  chainImages: {
+    369: '/pulse.png',
+  },
   // themeVariables: {
   //   "--w3m-accent": "cyan",
   //   "--w3m-border-radius-master": "0px"

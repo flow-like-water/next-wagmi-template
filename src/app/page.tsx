@@ -29,7 +29,7 @@ export default function Home() {
   const tokenSymbolData = tokenSymbol.data as string;
 
   const handleTransfer = async () => {
-    if (!recipient) return toast('Please enter recipient address', 'error');
+    if (!recipient) return toast('Enter a number between 1 & 10', 'error');
     const amount = parseUnits('10', tokenDecimalsData);
     await tokenTransfer.write([recipient, amount]);
     toast('Transfer successful', 'success');
