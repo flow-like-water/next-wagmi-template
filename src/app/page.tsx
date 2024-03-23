@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useAccount } from 'wagmi';
 import { formatUnits, parseUnits } from 'viem';
 import ConnectButton from '@/components/shared/ConnectButton';
+import Image from 'next/image'; // Importing the Image component
 import { useTokenRead, useTokenWrite } from '@/blockchain/hooks';
 import useToast from '@/hooks/useToast';
 
@@ -35,42 +36,35 @@ export default function Home() {
   };
 
   return (
-    <main className="h-screen w-full flex justify-center items-center bg-black text-white">
-      <div className="flex flex-col gap-5 items-center">
+    <div className="h-screen w-full bg-slate-900 text-white flex flex-col">
+      <div className="self-end p-4">
         <ConnectButton />
-
-        {address ? (
-          <div className="">
-            <p>
-              Token Balance: <span className="text-green-500 font-bold">{tokenBalanceData}</span>
-            </p>
-            <p>
-              Token Name: <span className="text-green-500 font-bold">{tokenNameData}</span>
-            </p>
-            <p>
-              Token Decimals: <span className="text-green-500 font-bold">{tokenDecimalsData} </span>
-            </p>
-            <p>
-              Token Symbol: <span className="text-green-500 font-bold">{tokenSymbolData}</span>
-            </p>
-          </div>
-        ) : (
-          <p className="text-red-500">Connect Your Wallet</p>
-        )}
-
-        <div className="flex gap-5">
-          <input
-            type="text"
-            placeholder="Enter recipient address"
-            className="p-2 border-none rounded-md focus:outline-cyan-300 text-black"
-            value={recipient}
-            onChange={(e) => setRecipient(e.target.value)}
-          />
-          <button className="border-cyan-700 border-2 rounded-md px-3 py-1" onClick={handleTransfer}>
-            Transfer
-          </button>
-        </div>
       </div>
-    </main>
+      <main className="flex-grow flex justify-center items-center">
+        <div className="flex flex-col gap-5 items-center">
+          {/* Image container */}
+          <div className="flex justify-center items-center gap-4 mb-5">
+            <Image src="/venusaur.png" alt="Venusaur" width={250} height={250} />
+            <Image src="/charizard.png" alt="Charizard" width={375} height={375} />
+            <Image src="/blastoise.png" alt="Blastoise" width={250} height={250} />
+          </div>
+
+          {address ? <div className=""></div> : <p className="text-red-500">Connect Your Wallet</p>}
+
+          <div className="flex gap-5">
+            <input
+              type="text"
+              placeholder="Enter recipient address"
+              className="p-2 border-none rounded-md focus:outline-cyan-300 text-black"
+              value={recipient}
+              onChange={(e) => setRecipient(e.target.value)}
+            />
+            <button className="border-cyan-700 border-2 rounded-md px-3 py-1" onClick={handleTransfer}>
+              Transfer
+            </button>
+          </div>
+        </div>
+      </main>
+    </div>
   );
 }
