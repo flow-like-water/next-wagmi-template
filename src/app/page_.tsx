@@ -1,82 +1,76 @@
-'use client';
+import React, { useEffect, useState } from 'react';
+import ReactDOM from 'react-dom/client';
+import {
+  http,
+  Address,
+  Hash,
+  TransactionReceipt,
+  createPublicClient,
+  createWalletClient,
+  custom,
+  stringify,
+} from 'viem';
+import { goerli } from 'viem/chains';
+import 'viem/window';
+import { contractABI } from '@blockchain/abis';
 
-import { useState } from 'react';
-import { useAccount } from 'wagmi';
-import { formatUnits, parseUnits } from 'viem';
-import ConnectButton from '@/components/shared/ConnectButton';
-import Image from 'next/image';
-import { useTokenRead, useTokenWrite } from '@/blockchain/hooks';
-import useToast from '@/hooks/useToast';
-import Slider from '../app/slider/slider';
+const publicClient = createPublicClient({
+  chain: goerli,
+  transport: http(),
+});
+const walletClient = createWalletClient({
+  chain: goerli,
+  transport: custom(window.ethereum!),
+});
 
-export default function Home() {
-  const toast = useToast();
-  const { address } = useAccount();
-  //const [recipient, setRecipient] = useState('');
-  const [nftAmount, setNftAmount] = useState(1); // Default value is 1
-  const tokenName = useTokenRead<string>('name');
-  const tokenBalance = useTokenRead<bigint>('balanceOf', [address]);
-  const tokenDecimals = useTokenRead<bigint>('decimals');
-  const tokenSymbol = useTokenRead<string>('symbol');
+function Example() {
+  const [account, setAccount] = useState<Address>();
+  const [hash, setHash] = useState<Hash>();
+  const [receipt, setReceipt] = useState<TransactionReceipt>();
 
-  const tokenTransfer = useTokenWrite('transfer', {
-    onSuccess(data) {
-      console.log('data: transfer write ', data);
-    },
-  });
-
-  const tokenNameData = tokenName.data;
-  const tokenDecimalsData = Number(tokenDecimals.data);
-  const tokenBalanceData = formatUnits(tokenBalance.data || BigInt(0), tokenDecimalsData);
-  const tokenSymbolData = tokenSymbol.data as string;
-
-  const handleSliderInput = (e) => {
-    setNftAmount(Number(e.target.value));
-    // Set CSS variable for slider position
-    document.documentElement.style.setProperty('--val', e.target.value);
+  const connect = async () => {
+    const [address] = await walletClient.requestAddresses();
+    setAccount(address);
   };
 
-  const handleTransfer = async () => {
-    if (nftAmount < 1 || nftAmount > 10) return toast('Select a number between 1 and 10', 'error');
-    const amount = parseUnits(nftAmount.toString(), tokenDecimalsData);
-    await tokenTransfer.write([address, amount]);
-    toast('Transfer successful', 'success');
+  const mint = async () => {
+    if (!account) return;
+    const { request } = await publicClient.simulateContract({
+      ...contractABI,
+      functionName: 'mint',
+      account,
+    });
+    const hash = await walletClient.writeContract(request);
+    setHash(hash);
   };
 
-  return (
-    <div className="h-screen w-full bg-slate-900 text-white flex flex-col items-center justify-center">
-      <div className="absolute top-4 right-4">
-        <ConnectButton />
-      </div>
-      <div className="flex justify-center items-center gap-4 mb-5">
-        {/* Image container */}
-        <Image src="/venusaur.png" alt="Venusaur" width={250} height={250} />
-        <Image src="/charizard.png" alt="Charizard" width={375} height={375} />
-        <Image src="/blastoise.png" alt="Blastoise" width={250} height={250} />
-      </div>
-      {/* Slider and Mint button container */}
-      <div className="flex flex-col items-center gap-2 w-full">
-        {/* Slider */}
-        <input
-          type="range"
-          min="1"
-          max="10"
-          value={nftAmount}
-          onChange={handleSliderInput}
-          className="slider" // Use this class to apply additional styles if needed
-          style={{ '--min': '1', '--max': '10', '--val': nftAmount }}
-        />
-        <Slider />
-        {/* Mint button */}
-        <button
-          className="border-indigo-600 bg-indigo-700 text-white font-bold py-2 px-4 rounded hover:bg-indigo-800 hover:ring hover:ring-indigo-300 hover:ring-opacity-50 focus:outline-none focus:ring focus:ring-indigo-500 focus:ring-opacity-50"
-          onClick={handleTransfer}
-        >
-          Mint
-        </button>
-      </div>
-      {/* Amount display */}
-      <div className="mt-2">Amount: {nftAmount}</div>
-    </div>
-  );
+  useEffect(() => {
+    (async () => {
+      if (hash) {
+        const receipt = await publicClient.waitForTransactionReceipt({ hash });
+        setReceipt(receipt);
+      }
+    })();
+  }, [hash]);
+
+  if (account)
+    return (
+      <>
+        <div>Connected: {account}</div>
+        <button onClick={mint}>Mint</button>
+        {receipt && (
+          <>
+            <div>
+              Receipt:{' '}
+              <pre>
+                <code>{stringify(receipt, null, 2)}</code>
+              </pre>
+            </div>
+          </>
+        )}
+      </>
+    );
+  return <button onClick={connect}>Connect Wallet</button>;
 }
+
+ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(<Example />);

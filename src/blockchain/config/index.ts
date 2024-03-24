@@ -1,6 +1,6 @@
 import { defaultWagmiConfig } from '@web3modal/wagmi/react/config';
 import { cookieStorage, createStorage, http } from 'wagmi';
-import { mainnet, pulsechain } from 'wagmi/chains';
+import { pulsechain, mainnet } from 'wagmi/chains';
 
 export const projectId = 'a8a94eaa29bf7b1d3a0d94172c58e6ac';
 
@@ -14,13 +14,13 @@ const metadata = {
 };
 
 export const wagmiConfig = defaultWagmiConfig({
-  chains: [mainnet, pulsechain], // required
+  chains: [pulsechain, mainnet], // required
   projectId, // required
   metadata, // required
   ssr: true,
   transports: {
+    [pulsechain.id]: http('https://rpc.pulsechain.com'),
     [mainnet.id]: http(),
-    [pulsechain.id]: http('https://rpc-pulsechain.g4mm4.io'),
   },
   storage: createStorage({
     storage: cookieStorage,

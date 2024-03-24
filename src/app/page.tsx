@@ -1,12 +1,12 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Head from 'next/head';
 import { useAccount } from 'wagmi';
+import { contractABI } from '@/blockchain/abis';
+import { useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
 import { formatUnits, parseUnits, parseEther } from 'viem';
 import ConnectButton from '@/components/shared/ConnectButton';
 import Image from 'next/image';
-import { useTokenRead, useTokenWrite } from '@/blockchain/hooks';
-import { useContractWrite } from '@/blockchain/hooks/useContract';
 import useToast from '@/hooks/useToast';
 
 const Home = () => {
@@ -14,42 +14,38 @@ const Home = () => {
   const { address } = useAccount();
   const [sliderValue, setSliderValue] = useState(1);
   const max = 10;
-  const tickCount = 10; // Set to 10 for 10 Pokéballs
+  const tickCount = 10;
   const [isMinted, setIsMinted] = useState(false);
+  const mintValue = parseUnits(sliderValue.toString(), 'ether');
 
-  // Destructuring the write function and any other properties you might need from the custom hook
-  const { write: mintNFT, error, isLoading } = useContractWrite('mint');
+  const { data: hash, writeContract } = useWriteContract();
+  const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({ hash });
 
-  /*  const tokenTransfer = useTokenWrite('transfer', {
-    onSuccess(data) {
-      console.log('data: transfer write ', data);
-    },
-  }); */
+  const handleMint = async () => {
+    const roundedValue = Math.round(sliderValue);
+    const mintValue = parseEther(roundedValue.toString());
+
+    console.log('Minting with value:', mintValue);
+    console.log('Slider value for minting:', sliderValue);
+
+    writeContract({
+      chainId: 369,
+      address: '0x47d2307b4f9a93F184BdE81D7D3f604c650AAd8d',
+      abi: contractABI,
+      functionName: 'mint',
+      args: [BigInt(sliderValue)], // Use sliderValue or a transformed value if needed
+      value: mintValue.toString(),
+    });
+  };
 
   const handleSliderChange = (e) => {
-    setSliderValue(Number(e.target.value));
+    const roundedValue = Math.round(e.target.value);
+    setSliderValue(roundedValue);
+    // Set CSS variable for slider position
+    document.documentElement.style.setProperty('--val', roundedValue.toString());
   };
 
   const isTickActive = (tickValue) => sliderValue >= tickValue;
-
-  // Inside your component
-  const handleMintClick = async () => {
-    const mintAmount = sliderValue.toString(); // Assuming this is your desired mint amount
-    const totalValue = parseEther(mintAmount).toString(); // Example value in Ether, adjust based on your requirements
-
-    console.log(`Minting ${mintAmount} NFTs for a total value of ${totalValue}`);
-
-    try {
-      setIsMinted(true);
-      //const parsedValue = parseEther(valueToSend);
-
-      await mintNFT(mintAmount, { value: totalValue });
-      toast('Mint successful', 'success');
-    } catch (err) {
-      console.error('Mint failed: ', err);
-      toast('Mint failed: ' + err.message, 'error');
-    }
-  };
 
   return (
     <>
@@ -113,12 +109,14 @@ const Home = () => {
             }}
             className="bg-indigo-700 text-white font-bold py-2 px-4 rounded cursor-pointer shadow-lg hover:shadow-none mt-5"
             onClick={() => {
-              handleMintClick();
+              handleMint();
             }}
             onMouseLeave={() => setIsMinted(false)}
           >
             Mint
           </button>
+          {isConfirming && <div>Waiting for confirmation...</div>}
+          {isConfirmed && <div>Transaction confirmed.</div>}
         </div>
       </div>
     </>
