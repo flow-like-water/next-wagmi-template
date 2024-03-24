@@ -35,18 +35,18 @@ const Home = () => {
   // Inside your component
   const handleMintClick = async () => {
     const mintAmount = sliderValue.toString(); // Assuming this is your desired mint amount
-    const valueToSend = parseEther(mintAmount).toString(); // Example value in Ether, adjust based on your requirements
+    const totalValue = parseEther(mintAmount).toString(); // Example value in Ether, adjust based on your requirements
 
-    console.log(mintAmount, valueToSend);
+    console.log(`Minting ${mintAmount} NFTs for a total value of ${totalValue}`);
 
     try {
       setIsMinted(true);
       //const parsedValue = parseEther(valueToSend);
 
-      await mintNFT(mintAmount, { value: valueToSend });
+      await mintNFT(mintAmount, { value: totalValue });
       toast('Mint successful', 'success');
     } catch (err) {
-      console.error('Mint failed: ', err, mintAmount, valueToSend);
+      console.error('Mint failed: ', err);
       toast('Mint failed: ' + err.message, 'error');
     }
   };
