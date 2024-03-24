@@ -43,12 +43,13 @@ export function useContractWrite(functionName: string, options?: useContractWrit
     },
   });
 
-  const write = async (args: Array<any> = []) => {
+  const write = async (args: Array<any> = [], overrides = {}) => {
     await writeContractAsync({
       abi: contractABI as Abi,
       address: contract,
       args,
       functionName,
+      overrides,
     });
   };
   return { write, ...rest };

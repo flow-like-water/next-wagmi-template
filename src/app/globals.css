@@ -146,8 +146,14 @@ datalist option {
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 100%; /* Full width of the viewport */
-  padding-top: 50vh; /* Adjust this value as needed to center vertically */
+  align-self: center;
+  width: 75%; /* Full width of the viewport */
+  /*padding-top: 50vh;*/ /* Adjust this value as needed to center vertically */
+}
+
+.flex-grow {
+  /* Ensure that this container takes up all the space it can, allowing centering of its children */
+  flex-grow: 1;
 }
 
 .slider-container {
@@ -208,4 +214,43 @@ datalist option {
 .min-max-labels span:last-child {
   position: absolute;
   right: -30px; /* Push "MAX" further off to the right side */
+}
+
+/* Ensure you have Tailwind CSS configured to allow custom animations and colors */
+@keyframes mask-animation-fill {
+  from {
+    mask-position: 100% 0;
+  }
+  to {
+    mask-position: 0 0;
+  }
+}
+
+@keyframes mask-animation-recede {
+  from {
+    mask-position: 0 0;
+  }
+  to {
+    mask-position: 100% 0;
+  }
+}
+
+.button-with-mask {
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+  border: 2px solid rgb(67 56 202); /* Default state with transparent border */
+  color: rgb(67 56 202); /* Default state with transparent text */
+  background-color: black; /* Black background to match the mask's background */
+  animation: mask-animation 0.7s steps(22) forwards;
+}
+
+.button-with-mask:hover {
+  animation: mask-animation-hover 0.7s steps(22) forwards;
+}
+
+/* Style for when the animation is complete */
+.button-end-state {
+  border-color: rgb(67 56 202); /* Purple border */
+  color: white; /* White text */
 }

@@ -2,35 +2,29 @@
 import React, { useState } from 'react';
 import Head from 'next/head';
 import { useAccount } from 'wagmi';
-import { formatUnits, parseUnits } from 'viem';
+import { formatUnits, parseUnits, parseEther } from 'viem';
 import ConnectButton from '@/components/shared/ConnectButton';
 import Image from 'next/image';
 import { useTokenRead, useTokenWrite } from '@/blockchain/hooks';
+import { useContractWrite } from '@/blockchain/hooks/useContract';
 import useToast from '@/hooks/useToast';
 
 const Home = () => {
   const toast = useToast();
   const { address } = useAccount();
-  //const [recipient, setRecipient] = useState('');
-  const [nftAmount, setNftAmount] = useState(1); // Default value is 1
-  const tokenName = useTokenRead<string>('name');
-  const tokenBalance = useTokenRead<bigint>('balanceOf', [address]);
-  const tokenDecimals = useTokenRead<bigint>('decimals');
-  const tokenSymbol = useTokenRead<string>('symbol');
-  const [sliderValue, setSliderValue] = useState(5);
+  const [sliderValue, setSliderValue] = useState(1);
   const max = 10;
   const tickCount = 10; // Set to 10 for 10 Pokéballs
+  const [isMinted, setIsMinted] = useState(false);
 
-  const tokenTransfer = useTokenWrite('transfer', {
+  // Destructuring the write function and any other properties you might need from the custom hook
+  const { write: mintNFT, error, isLoading } = useContractWrite('mint');
+
+  /*  const tokenTransfer = useTokenWrite('transfer', {
     onSuccess(data) {
       console.log('data: transfer write ', data);
     },
-  });
-
-  const tokenNameData = tokenName.data;
-  const tokenDecimalsData = Number(tokenDecimals.data);
-  const tokenBalanceData = formatUnits(tokenBalance.data || BigInt(0), tokenDecimalsData);
-  const tokenSymbolData = tokenSymbol.data as string;
+  }); */
 
   const handleSliderChange = (e) => {
     setSliderValue(Number(e.target.value));
@@ -38,11 +32,23 @@ const Home = () => {
 
   const isTickActive = (tickValue) => sliderValue >= tickValue;
 
-  const handleTransfer = async () => {
-    if (nftAmount < 1 || nftAmount > 10) return toast('Select a number between 1 and 10', 'error');
-    const amount = parseUnits(nftAmount.toString(), tokenDecimalsData);
-    await tokenTransfer.write([address, amount]);
-    toast('Transfer successful', 'success');
+  // Inside your component
+  const handleMintClick = async () => {
+    const mintAmount = sliderValue.toString(); // Assuming this is your desired mint amount
+    const valueToSend = parseEther(mintAmount).toString(); // Example value in Ether, adjust based on your requirements
+
+    console.log(mintAmount, valueToSend);
+
+    try {
+      setIsMinted(true);
+      //const parsedValue = parseEther(valueToSend);
+
+      await mintNFT(mintAmount, { value: valueToSend });
+      toast('Mint successful', 'success');
+    } catch (err) {
+      console.error('Mint failed: ', err, mintAmount, valueToSend);
+      toast('Mint failed: ' + err.message, 'error');
+    }
   };
 
   return (
@@ -57,14 +63,12 @@ const Home = () => {
           <link rel="preconnect" href="https://fonts.gstatic.com" />
           <link href="https://fonts.googleapis.com/css2?family=Ubuntu&display=swap" rel="stylesheet" />
           <link rel="stylesheet" href="/style.css" />
-          {/* Other scripts can be included here. Make sure you handle them correctly in React. */}
         </Head>
-        <div className="flex-grow flex flex-col items-center justify-center">
+        <div className="flex flex-grow flex-col items-center justify-center w-full">
           <div className="flex justify-center items-center gap-4 mb-5">
-            {/* Image container */}
-            <Image src="/venusaur.png" alt="Venusaur" width={250} height={250} />
-            <Image src="/charizard.png" alt="Charizard" width={375} height={375} />
-            <Image src="/blastoise.png" alt="Blastoise" width={250} height={250} />
+            <Image src="/venusaur.png" alt="Venusaur" width={200} height={200} />
+            <Image src="/charizard.png" alt="Charizard" width={275} height={275} />
+            <Image src="/blastoise.png" alt="Blastoise" width={200} height={200} />
           </div>
           <div className="outer-slider-container">
             <div className="slider-container">
@@ -95,6 +99,26 @@ const Home = () => {
               </div>
             </div>
           </div>
+          <button
+            style={{
+              WebkitMaskImage:
+                "url('https://raw.githubusercontent.com/robin-dela/css-mask-animation/master/img/nature-sprite.png')",
+              maskImage:
+                "url('https://raw.githubusercontent.com/robin-dela/css-mask-animation/master/img/nature-sprite.png')",
+              WebkitMaskSize: '2300% 100%',
+              maskSize: '2300% 100%',
+              animation: isMinted
+                ? 'mask-animation-recede 0.7s steps(22) forwards'
+                : 'mask-animation-fill 0.7s steps(22) forwards',
+            }}
+            className="bg-indigo-700 text-white font-bold py-2 px-4 rounded cursor-pointer shadow-lg hover:shadow-none mt-5"
+            onClick={() => {
+              handleMintClick();
+            }}
+            onMouseLeave={() => setIsMinted(false)}
+          >
+            Mint
+          </button>
         </div>
       </div>
     </>

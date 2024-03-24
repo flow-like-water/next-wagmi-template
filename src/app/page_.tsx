@@ -69,7 +69,7 @@ export default function Home() {
         <Slider />
         {/* Mint button */}
         <button
-          className="border-indigo-600 bg-indigo-700 text-white font-bold py-2 px-4 rounded"
+          className="border-indigo-600 bg-indigo-700 text-white font-bold py-2 px-4 rounded hover:bg-indigo-800 hover:ring hover:ring-indigo-300 hover:ring-opacity-50 focus:outline-none focus:ring focus:ring-indigo-500 focus:ring-opacity-50"
           onClick={handleTransfer}
         >
           Mint
