@@ -19,10 +19,11 @@ createWeb3Modal({
   chainImages: {
     369: '/pulse.png',
   },
-  // themeVariables: {
-  //   "--w3m-accent": "cyan",
-  //   "--w3m-border-radius-master": "0px"
-  // }
+  themeVariables: {
+    '--w3m-font-family': 'Montserrat, sans-serif',
+    '--w3m-accent': '#4f46e5',
+    '--w3m-border-radius-master': 0,
+  },
 });
 
 export function Web3Modal({ children, initialState }: { children: ReactNode; initialState?: State }) {

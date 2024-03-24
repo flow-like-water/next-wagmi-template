@@ -1,7 +1,6 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
 @charset "UTF-8";
 
 * {
@@ -198,7 +197,7 @@ datalist option {
   display: flex;
   justify-content: space-between;
   width: 100%;
-  top: 60%; /* Adjust to align with the slider's vertical center */
+  top: 61%; /* Adjust to align with the slider's vertical center */
   transform: translateY(-50%); /* Center vertically */
 }
 
@@ -208,7 +207,7 @@ datalist option {
 
 .min-max-labels span:first-child {
   position: absolute;
-  left: -40px; /* Push "MIN" further off to the left side */
+  left: -45px; /* Push "MIN" further off to the left side */
 }
 
 .min-max-labels span:last-child {
@@ -235,22 +234,21 @@ datalist option {
   }
 }
 
-.button-with-mask {
+/*.button-with-mask {
   width: 100%;
   height: 100%;
   cursor: pointer;
-  border: 2px solid rgb(67 56 202); /* Default state with transparent border */
-  color: rgb(67 56 202); /* Default state with transparent text */
-  background-color: black; /* Black background to match the mask's background */
-  animation: mask-animation 0.7s steps(22) forwards;
+  border: 2px solid rgb(67 56 202);
+  color: rgb(67 56 202);
+  background-color: black; 
+  animation: mask-animation 1.2s steps(22) forwards;
 }
 
 .button-with-mask:hover {
-  animation: mask-animation-hover 0.7s steps(22) forwards;
+  animation: mask-animation-hover 1.2s steps(22) forwards;
 }
 
-/* Style for when the animation is complete */
 .button-end-state {
-  border-color: rgb(67 56 202); /* Purple border */
-  color: white; /* White text */
-}
+  border-color: rgb(67 56 202); /
+  color: white; /* White text 
+} */

@@ -7,26 +7,40 @@ import { useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
 import { formatUnits, parseUnits, parseEther } from 'viem';
 import ConnectButton from '@/components/shared/ConnectButton';
 import Image from 'next/image';
-import useToast from '@/hooks/useToast';
+import toast from 'react-hot-toast';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faTelegram, faXTwitter } from '@fortawesome/free-brands-svg-icons';
+import { faBook } from '@fortawesome/free-solid-svg-icons';
 
 const Home = () => {
-  const toast = useToast();
   const { address } = useAccount();
   const [sliderValue, setSliderValue] = useState(1);
   const max = 10;
   const tickCount = 10;
   const [isMinted, setIsMinted] = useState(false);
-  const mintValue = parseUnits(sliderValue.toString(), 'ether');
+  const [animationPlayed, setAnimationPlayed] = useState(false);
 
+  useEffect(() => {
+    setAnimationPlayed(true);
+  }, []);
+
+  const mintValue = parseUnits(sliderValue.toString(), 'ether');
   const { data: hash, writeContract } = useWriteContract();
   const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({ hash });
 
+  const isTickActive = (tickValue) => sliderValue >= tickValue;
+
+  const handleSliderChange = (e) => {
+    const roundedValue = Math.round(e.target.value);
+    setSliderValue(roundedValue);
+    // Set CSS variable for slider position
+    document.documentElement.style.setProperty('--val', roundedValue.toString());
+  };
+
   const handleMint = async () => {
+    setIsMinted(true);
     const roundedValue = Math.round(sliderValue);
     const mintValue = parseEther(roundedValue.toString());
-
-    console.log('Minting with value:', mintValue);
-    console.log('Slider value for minting:', sliderValue);
 
     writeContract({
       chainId: 369,
@@ -38,14 +52,36 @@ const Home = () => {
     });
   };
 
-  const handleSliderChange = (e) => {
-    const roundedValue = Math.round(e.target.value);
-    setSliderValue(roundedValue);
-    // Set CSS variable for slider position
-    document.documentElement.style.setProperty('--val', roundedValue.toString());
-  };
+  useEffect(() => {
+    let toastId;
+    if (isConfirming) {
+      // Show loading toast and save its ID
+      toastId = toast.loading('Waiting for confirmation...', {
+        style: {
+          backgroundColor: 'rgb(99 102 241)', // This is the TailwindCSS indigo-700 color
+          color: '#ffffff', // White text color
+        },
+        icon: <img src="/shuffle.svg" alt="loading" />, // Use an img tag to include your custom SVG
+      });
+    }
 
-  const isTickActive = (tickValue) => sliderValue >= tickValue;
+    if (isConfirmed) {
+      // Dismiss the loading toast if present and show success message
+      if (toastId) toast.dismiss(toastId);
+      toast.success('Transaction confirmed.', {
+        style: {
+          backgroundColor: 'rgb(99 102 241)', // This is the TailwindCSS indigo-700 color
+          color: '#ffffff', // White text color
+        },
+        icon: <img src="/checkmark.png" alt="success" style={{ width: '50px', height: '50px' }} />,
+      });
+    }
+
+    // Clean up function to dismiss the toast when the component unmounts or before next effect runs
+    return () => {
+      if (toastId) toast.dismiss(toastId);
+    };
+  }, [isConfirming, isConfirmed]);
 
   return (
     <>
@@ -57,7 +93,7 @@ const Home = () => {
           <meta charset="UTF-8" />
           <title>Styled native range input</title>
           <link rel="preconnect" href="https://fonts.gstatic.com" />
-          <link href="https://fonts.googleapis.com/css2?family=Ubuntu&display=swap" rel="stylesheet" />
+          <link href="https://fonts.googleapis.com/css2?family=Montserrat&display=swap" rel="stylesheet" />
           <link rel="stylesheet" href="/style.css" />
         </Head>
         <div className="flex flex-grow flex-col items-center justify-center w-full">
@@ -104,19 +140,44 @@ const Home = () => {
               WebkitMaskSize: '2300% 100%',
               maskSize: '2300% 100%',
               animation: isMinted
-                ? 'mask-animation-recede 0.7s steps(22) forwards'
-                : 'mask-animation-fill 0.7s steps(22) forwards',
+                ? 'mask-animation-recede 1.2s steps(22) forwards'
+                : 'mask-animation-fill 1.2s steps(22) forwards',
             }}
-            className="bg-indigo-700 text-white font-bold py-2 px-4 rounded cursor-pointer shadow-lg hover:shadow-none mt-5"
+            className="bg-indigo-700 text-white font-bold py-2.5 px-12 rounded cursor-pointer shadow-lg hover:shadow-none mt-5 ring ring-indigo-300/50"
             onClick={() => {
               handleMint();
+              if (!animationPlayed) setAnimationPlayed(true);
             }}
             onMouseLeave={() => setIsMinted(false)}
           >
             Mint
           </button>
-          {isConfirming && <div>Waiting for confirmation...</div>}
-          {isConfirmed && <div>Transaction confirmed.</div>}
+        </div>
+        <div className="fixed bottom-4 left-4 flex flex-row items-center space-x-2">
+          <a
+            href="https://t.me/pulse_pocket_monsters"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-indigo-700 hover:text-indigo-500"
+          >
+            <FontAwesomeIcon icon={faTelegram} size="2x" />
+          </a>
+          <a
+            href="https://x.com/Prof___Oak___"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-indigo-700 hover:text-indigo-500"
+          >
+            <FontAwesomeIcon icon={faXTwitter} size="2x" />
+          </a>
+          <a
+            href="https://YourDocumentation"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-indigo-700 hover:text-indigo-500"
+          >
+            <FontAwesomeIcon icon={faBook} size="2x" />
+          </a>
         </div>
       </div>
     </>
