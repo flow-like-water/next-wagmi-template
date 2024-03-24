@@ -1,3 +1,211 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@charset "UTF-8";
+
+* {
+  margin: 0;
+  padding: 0;
+  font: inherit;
+}
+
+body,
+form,
+datalist {
+  display: grid;
+}
+
+body {
+  overflow-x: hidden;
+  min-height: 100vh;
+  background: linear-gradient(#f8f8f8, #d9d9d9);
+  font:
+    1em/1.25 ubuntu,
+    trebuchet ms,
+    verdana;
+}
+@media (max-width: 240px) {
+  body {
+    font-size: 0.75em;
+  }
+}
+
+form {
+  --k: calc((var(--val) - var(--min)) / (var(--max) - var(--min)));
+  --pos: calc(1.125em + var(--k) * (100% - 2.25em));
+  grid-gap: 0.25em;
+  place-self: center;
+  min-width: 8em;
+  width: calc(100% - 1.5em);
+  max-width: 19.5em;
+  filter: Saturate(var(--hl, 0));
+  transition: filter 0.3s ease-out;
+}
+form:focus-within,
+form:hover {
+  --hl: 1;
+}
+
+input[type='range'] {
+  height: 2.25em;
+  border-radius: 2.25em;
+  box-shadow:
+    0 -1px #eaeaea,
+    0 1px #fff;
+  background: linear-gradient(#c3c3c3, #f1f1f1);
+  cursor: pointer;
+}
+input[type='range'],
+input[type='range']::-webkit-slider-runnable-track,
+input[type='range']::-webkit-slider-thumb {
+  -webkit-appearance: none;
+}
+input[type='range'][list]::-webkit-slider-container {
+  min-height: 1.5em;
+}
+input[type='range']::-webkit-slider-container {
+  -webkit-user-modify: read-write !important;
+  margin: 0.375em;
+  height: 1.5em;
+  border-radius: 0.75em;
+  box-shadow: inset 0 1px 4px #8c8c8c;
+  background:
+    linear-gradient(#f8dd36, #d68706) 0 / var(--pos) no-repeat,
+    linear-gradient(#efefef, #c9c9c9);
+}
+input[type='range']::-webkit-slider-runnable-track {
+  margin: -0.375em;
+}
+input[type='range']::-moz-range-track {
+  margin: 0.375em;
+  height: 1.5em;
+  border-radius: 0.75em;
+  box-shadow: inset 0 1px 4px #8c8c8c;
+  background:
+    linear-gradient(#f8dd36, #d68706) 0 / var(--pos) no-repeat,
+    linear-gradient(#efefef, #c9c9c9);
+}
+input[type='range']::-webkit-slider-thumb {
+  box-sizing: border-box;
+  border: solid 0.375em transparent;
+  width: 2.25em;
+  height: 2.25em;
+  border-radius: 50%;
+  box-shadow: 0 2px 5px #7d7d7d;
+  background:
+    linear-gradient(#c5c5c5, whitesmoke) padding-box,
+    linear-gradient(#fbfbfb, #c2c2c2) border-box;
+  cursor: ew-resize;
+}
+input[type='range']::-moz-range-thumb {
+  box-sizing: border-box;
+  border: solid 0.375em transparent;
+  width: 2.25em;
+  height: 2.25em;
+  border-radius: 50%;
+  box-shadow: 0 2px 5px #7d7d7d;
+  background:
+    linear-gradient(#c5c5c5, whitesmoke) padding-box,
+    linear-gradient(#fbfbfb, #c2c2c2) border-box;
+  cursor: ew-resize;
+}
+input[type='range']:focus {
+  outline: none;
+}
+
+datalist {
+  grid-row: 1;
+  grid-template-columns: 3em 1fr 3em;
+  place-content: end center;
+  margin: 0 -0.375em;
+  color: #bababa;
+  text-align: center;
+  text-transform: uppercase;
+}
+datalist::after {
+  place-self: end center;
+  margin-bottom: 3px;
+  width: min(12em, 100%);
+  min-height: 0.5em;
+  grid-area: 1/2;
+  background: linear-gradient(90deg, transparent 2px, #f0ba22 0) -1px/1em round;
+  clip-path: polygon(0 calc(100% - 1px), 0 100%, 100% 100%, 100% 0);
+  content: '';
+}
+
+datalist option {
+  display: inline-block; /* This might need vendor prefixes or might not be supported */
+  width: 10px; /* Adjust size accordingly */
+  height: 10px; /* Adjust size accordingly */
+  background-size: cover; /* Make the pokeball fit the size */
+  background-repeat: no-repeat;
+}
+
+.outer-slider-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%; /* Full width of the viewport */
+  padding-top: 50vh; /* Adjust this value as needed to center vertically */
+}
+
+.slider-container {
+  max-width: 33.33%; /* 1/3 of the viewport width */
+  width: 100%; /* Make sure it doesn't exceed its container */
+  position: relative; /* For absolute positioning of children */
+  padding: 40px 10px 0; /* Add top padding to make room for the tick marks */
+}
+
+.slider {
+  width: 100%; /* Full width to fit its container */
+}
+
+.tick-marks-container {
+  position: absolute;
+  display: flex;
+  justify-content: space-between;
+  width: calc(100% - 20px); /* Adjust width if needed */
+  padding: 0 10px; /* Aligning with the slider's thumb size */
+  top: -5px; /* Position above the slider */
+}
+
+.tick-mark {
+  width: 20px; /* Width of the pokéball image */
+  height: 20px; /* Height of the pokéball image */
+  margin: 0 2%; /* Adjust the margins to space out the pokéballs evenly */
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.tick-mark.active {
+  background-image: url('/pokeball.png'); /* Change to colored pokéball */
+}
+
+.tick-mark.inactive {
+  background-image: url('/pokeball_grey.png'); /* Grey pokéball for inactive state */
+}
+
+.min-max-labels {
+  position: absolute;
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  top: 60%; /* Adjust to align with the slider's vertical center */
+  transform: translateY(-50%); /* Center vertically */
+}
+
+.min-max-labels span {
+  position: absolute;
+}
+
+.min-max-labels span:first-child {
+  position: absolute;
+  left: -40px; /* Push "MIN" further off to the left side */
+}
+
+.min-max-labels span:last-child {
+  position: absolute;
+  right: -30px; /* Push "MAX" further off to the right side */
+}
